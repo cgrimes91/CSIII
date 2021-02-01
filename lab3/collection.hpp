@@ -1,0 +1,124 @@
+//Chris Grimes
+//CS III lab 3
+//collection.hpp
+// 9/15/20
+
+#include "list.hpp"
+#include <iostream>
+
+#ifndef COLLECTION_HPP
+#define COLLECTION_HPP
+
+template<typename T>
+class Collection{
+
+public:
+  void add(const T&);//takes an item as the argument and adds it to the collection
+  void remove(const T&);//takes an item as an argument and removes ALL instances of it
+  T last();//returns the last item added to collection
+  void print();//prints ALL items in collection
+  template<typename U>
+  friend bool equal(const Collection<U>&, const Collection<U>&);//compares two collections for equality; implementing as a general friend function
+  
+  private:
+  node<T> *current=nullptr;
+  node<T> *firstEle=nullptr;  
+};
+
+  template<typename T>
+  void Collection<T>::add(const T& item){
+    current=firstEle;
+    if(firstEle==nullptr){//does not  firstEle point at anything
+      firstEle= new node<T>;//firstEle points at a new node
+      firstEle->setData(item);//new nodes data is set to item
+      current=firstEle;
+    }
+    else{//firstEle does point at a node
+      while(current->getNext() != nullptr){//is there a node after this one
+	current=current->getNext();//if yes increment current to next node
+      }
+      current->setNext(new node<T>);//when current is the last node, make it point to a new node
+      current=current->getNext();//current now points at the new last node
+      current->setData(item);//new nodes data is set to item
+    }
+  }
+
+  template<typename T>
+  void Collection<T>::remove(const T& item){
+    current=firstEle;
+    node<T> *toRemove, *prev;
+    if(firstEle->getData() == item){//if it happens to be first
+      current=nullptr;
+      current=firstEle->getNext();
+      delete firstEle;
+      firstEle=nullptr;
+      firstEle=current;
+    }
+    while(current->getNext() !=nullptr){//iterates to find element with the correct contents
+      prev=firstEle;
+      current=firstEle->getNext();
+      while(current->getData() != item){
+	current=current->getNext();
+	prev=prev->getNext();
+      }
+      if(current->getNext() !=nullptr){//if the found element is not the last element
+	prev->setNext(current->getNext());
+	toRemove=current;
+	current=current->getNext();
+	delete toRemove;
+	toRemove->setNext(nullptr);
+      }
+      else if(current->getNext() ==nullptr){//if the found element if the last element
+	prev->setNext(nullptr);
+	delete current;
+	current->setNext(nullptr);
+      }
+    } 
+  }
+
+  template<typename T>
+  T Collection<T>::last(){
+    current=firstEle;
+    while(current->getNext() !=nullptr){//is there a node after current
+      current=current->getNext();
+    }
+    return current->getData();//when current is the last node return its data
+  }
+
+  template<typename T>
+  void Collection<T>::print(){
+    current=firstEle;
+    while(current->getNext() != nullptr){//is there a node after current
+      std::cout<<current->getData()<<std::endl;//cout currents data
+      current=current->getNext();
+    }
+    std::cout<<current->getData()<<std::endl;//cout the last nodes data
+  }
+
+  template<typename U>
+  bool equal(const Collection<U>& lhs , const Collection<U>& rhs){
+    node<U> *leftCurrent=lhs.firstEle;
+    node<U> *rightCurrent=rhs.firstEle;
+    if((lhs.firstEle == nullptr) && (rhs.firstEle == nullptr)){//if both firstEle's are nullptr then equal
+      return true;
+    }
+    if(leftCurrent->getData() != rightCurrent->getData()){//checks equivalence of firstEle->data
+	return false;
+      }
+    while(leftCurrent->getData() == rightCurrent->getData()){
+      if(((leftCurrent->getNext() != nullptr) && (rightCurrent->getNext() == nullptr)) || ((leftCurrent->getNext() == nullptr) && (rightCurrent->getNext() != nullptr))){//if either sides next is a nullptr and the other ins't -> false
+	return false;
+      }
+      else if((leftCurrent->getNext() == nullptr) && (rightCurrent->getNext() == nullptr)){//if both sides next is nullptr true
+	return true;
+      }
+      leftCurrent=leftCurrent->getNext();//increment both pointers
+      rightCurrent=rightCurrent->getNext();      
+    }
+      if(leftCurrent->getData() != rightCurrent->getData()){//escaped the while loop so datas aren't ==
+      return false;
+    }
+      return true;
+  }
+  
+#endif

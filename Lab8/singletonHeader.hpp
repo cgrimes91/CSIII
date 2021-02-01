@@ -1,0 +1,41 @@
+//Lab 8 Singleton Header File
+//Chris Grimes
+//10/26/20
+
+#ifndef SINGLETONHEADER_HPP_
+#define SINGLETONHEADER_HPP_
+
+#include<fstream>
+
+
+class Logger{
+  
+public:
+  static Logger& instance(){ static Logger l; return l;}
+  void report(const std::string&);
+
+private:
+  Logger();
+  Logger( const Logger&)=delete;
+  Logger& operator=(const Logger&)=delete;
+  ~Logger();
+  
+  static std::fstream fout;
+};
+
+Logger::Logger(){
+  std::fstream fout("log.txt", std::fstream::app);
+}
+
+void Logger::report(const std::string& input){
+  std::fstream fout("log.txt", std::fstream::app);
+  fout<<input<<std::endl;
+}
+
+Logger::~Logger(){
+  std::fstream fout("log.txt");
+  fout.flush();
+  fout.close();
+}
+
+#endif
